@@ -49,3 +49,49 @@ export default function CryptoRadar2() {
     </div>
   );
 }
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+export default function CryptoRadar2() {
+  const [macroEvents, setMacroEvents] = useState([]);
+
+  useEffect(() => {
+    const today = new Date();
+    const startDate = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // Montag
+    const endDate = new Date(today.setDate(startDate.getDate() + 6)); // Sonntag
+
+    const formatDate = (date) => date.toISOString().split("T")[0];
+
+    axios
+      .get(
+        `https://financialmodelingprep.com/api/v3/economic_calendar?from=${formatDate(startDate)}&to=${formatDate(
+          endDate
+        )}&apikey=FypZuRL0mJYdJHjnTBBickKPaDe96eAi`
+      )
+      .then((res) => setMacroEvents(res.data))
+      .catch((err) => console.error("Makro-Daten Fehler", err));
+  }, []);
+
+  return (
+    <div className="p-6 space-y-8 bg-gradient-to-b from-gray-900 to-gray-800 text-white min-h-screen">
+      {/* ... andere Abschnitte ... */}
+
+      {/* 📆 Makro Wochenkalender */}
+      <section className="bg-gray-850 shadow-xl rounded-2xl p-6 border border-gray-700">
+        <h2 className="text-3xl font-bold mb-4 text-yellow-300">📆 Makro-Kalender (Woche)</h2>
+        {macroEvents.length > 0 ? (
+          <ul className="list-disc pl-6 space-y-2 text-gray-200">
+            {macroEvents.map((event, index) => (
+              <li key={index}>
+                <strong>{event.date}</strong> – <span className="text-blue-300">{event.event}</span> ({event.country}) –{" "}
+                {event.time} Uhr ({event.actual || "?"} / {event.consensus || "?"})
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-400">Keine Makro-Termine gefunden.</p>
+        )}
+      </section>
+    </div>
+  );
+}
