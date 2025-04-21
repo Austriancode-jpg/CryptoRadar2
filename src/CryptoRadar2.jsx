@@ -4,9 +4,10 @@ import axios from "axios";
 export default function CryptoRadar2() {
   const [prices, setPrices] = useState({});
   const [fearGreed, setFearGreed] = useState(null);
+  const [macroEvents, setMacroEvents] = useState([]);
 
   useEffect(() => {
-    // Preise laden
+    // Coin-Preise
     axios
       .get("https://api.coingecko.com/api/v3/simple/price", {
         params: {
@@ -22,10 +23,17 @@ export default function CryptoRadar2() {
       .get("https://api.alternative.me/fng/?limit=1")
       .then((res) => setFearGreed(res.data.data[0]))
       .catch((err) => console.error("Fehler bei F&G API", err));
+
+    // Makro-Kalender
+    axios
+      .get("https://date.nager.at/api/v3/PublicHolidays/2025/US")
+      .then((res) => setMacroEvents(res.data.slice(0, 7)))
+      .catch((err) => console.error("Fehler beim Laden von Makro-Terminen", err));
   }, []);
 
   return (
     <div className="p-6 space-y-8 bg-gradient-to-b from-gray-900 to-gray-800 text-white min-h-screen">
+      {/* 📅 Tagesüberblick */}
       <section className="bg-gray-850 shadow-xl rounded-2xl p-6 border border-gray-700">
         <h2 className="text-3xl font-bold mb-4 text-blue-400">📅 Tagesüberblick</h2>
         <ul className="list-disc pl-6 space-y-2 text-gray-200">
@@ -46,37 +54,10 @@ export default function CryptoRadar2() {
           </li>
         </ul>
       </section>
-    </div>
-  );
-}
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-
-export default function CryptoRadar2() {
-  const [macroEvents, setMacroEvents] = useState([]);
-
-  useEffect(() => {
-    async function fetchMacroData() {
-      try {
-        const response = await axios.get(
-          'https://date.nager.at/api/v3/PublicHolidays/2025/US'
-        );
-        setMacroEvents(response.data.slice(0, 7)); // Zeigt die nächsten 7 Termine
-      } catch (err) {
-        console.log("Makro-Daten erfolgreich geladen:", response.data);
-      }
-    }
-
-    fetchMacroData();
-  }, []);
-
-  return (
-    <div className="p-6 space-y-8 bg-gray-900 text-white min-h-screen">
-      {/* ... dein bestehender Tages- und Wochenüberblick bleibt hier ... */}
 
       {/* 📆 Makro-Wochenkalender */}
       <section className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md">
-        <h2 className="text-2xl font-bold mb-4 text-blue-400">📆 Makro-Wochenkalender</h2>
+        <h2 className="text-2xl font-bold mb-4 text-green-400">📆 Makro-Wochenkalender</h2>
         {macroEvents.length > 0 ? (
           <ul className="list-disc pl-6 space-y-2 text-gray-200">
             {macroEvents.map((event, index) => (
@@ -86,7 +67,7 @@ export default function CryptoRadar2() {
             ))}
           </ul>
         ) : (
-          <p className="text-green-400">✅ Kalender-Komponente wird angezeigt!</p>
+          <p className="text-gray-400">Makro-Termine werden geladen...</p>
         )}
       </section>
     </div>
