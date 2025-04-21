@@ -63,7 +63,7 @@ export default function CryptoRadar2() {
         );
         setMacroEvents(response.data.slice(0, 7)); // Zeigt die nächsten 7 Termine
       } catch (err) {
-        console.error('Fehler beim Laden des Kalenders:', err);
+        console.log("Makro-Daten erfolgreich geladen:", response.data);
       }
     }
 
