@@ -7,7 +7,7 @@ export default function CryptoRadar2() {
   const [macroEvents, setMacroEvents] = useState([]);
 
   useEffect(() => {
-    // Coin-Preise
+    // Kurse laden
     axios
       .get("https://api.coingecko.com/api/v3/simple/price", {
         params: {
@@ -24,16 +24,17 @@ export default function CryptoRadar2() {
       .then((res) => setFearGreed(res.data.data[0]))
       .catch((err) => console.error("Fehler bei F&G API", err));
 
-    // Makro-Kalender
+    // Makro-Ereignisse (nur Demo: US-Feiertage)
     axios
       .get("https://date.nager.at/api/v3/PublicHolidays/2025/US")
       .then((res) => setMacroEvents(res.data.slice(0, 7)))
-      .catch((err) => console.error("Fehler beim Laden von Makro-Terminen", err));
+      .catch((err) => console.error("Fehler bei Makro-Terminen", err));
   }, []);
 
   return (
     <div className="p-6 space-y-8 bg-gradient-to-b from-gray-900 to-gray-800 text-white min-h-screen">
-      {/* 📅 Tagesüberblick */}
+
+      {/* Tagesüberblick */}
       <section className="bg-gray-850 shadow-xl rounded-2xl p-6 border border-gray-700">
         <h2 className="text-3xl font-bold mb-4 text-blue-400">📅 Tagesüberblick</h2>
         <ul className="list-disc pl-6 space-y-2 text-gray-200">
@@ -48,14 +49,14 @@ export default function CryptoRadar2() {
           </li>
           <li>
             <strong>Funding & Heatmap:</strong>{" "}
-            <a href="https://www.coinglass.com/" target="_blank" className="text-blue-400 underline">
+            <a href="https://www.coinglass.com/" target="_blank" rel="noreferrer" className="text-blue-400 underline">
               Live-Daten auf CoinGlass anzeigen
             </a>
           </li>
         </ul>
       </section>
 
-      {/* 📆 Makro-Wochenkalender */}
+      {/* Makro-Wochenkalender */}
       <section className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md">
         <h2 className="text-2xl font-bold mb-4 text-green-400">📆 Makro-Wochenkalender</h2>
         {macroEvents.length > 0 ? (
@@ -67,9 +68,10 @@ export default function CryptoRadar2() {
             ))}
           </ul>
         ) : (
-          <p className="text-gray-400">Makro-Termine werden geladen...</p>
+          <p className="text-gray-400">Kalenderdaten werden geladen...</p>
         )}
       </section>
+
     </div>
   );
 }
