@@ -86,7 +86,7 @@ export default function CryptoRadar2() {
             ))}
           </ul>
         ) : (
-          <p className="text-gray-400">Makro-Termine werden geladen...</p>
+          <p className="text-green-400">✅ Kalender-Komponente wird angezeigt!</p>
         )}
       </section>
     </div>
