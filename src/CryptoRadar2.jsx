@@ -104,6 +104,11 @@ export default function CryptoRadar2() {
     ["bitcoin", "ethereum", "solana", "polkadot"].forEach(getPivotPointsAndFibonacci);
   }, []);
 
+  // Zahlen runden
+  const roundTo = (num, decimals) => {
+    return num ? num.toFixed(decimals) : "–";
+  };
+
   return (
     <div className="p-6 space-y-8 bg-gradient-to-b from-gray-900 to-gray-800 text-white min-h-screen">
       {/* Tagesüberblick */}
@@ -112,12 +117,18 @@ export default function CryptoRadar2() {
         <ul className="list-disc pl-6 space-y-2 text-gray-200">
           <li>
             <strong>Kurse:</strong><br />
-            BTC: ${prices.bitcoin?.usd ?? "–"}, ETH: ${prices.ethereum?.usd ?? "–"},
-            SOL: ${prices.solana?.usd ?? "–"}, DOT: ${prices.polkadot?.usd ?? "–"}
+            BTC: ${roundTo(prices.bitcoin?.usd, 2)}, ETH: ${roundTo(prices.ethereum?.usd, 2)}, 
+            SOL: ${roundTo(prices.solana?.usd, 2)}, DOT: ${roundTo(prices.polkadot?.usd, 2)}
           </li>
           <li>
             <strong>Fear & Greed Index:</strong>{" "}
             {fearGreed ? `${fearGreed.value} – ${fearGreed.value_classification}` : "Lade..."}
+          </li>
+          <li>
+            <strong>Funding & Heatmap:</strong>{" "}
+            <a href="https://www.coinglass.com/" target="_blank" className="text-blue-400 underline">
+              Live-Daten auf CoinGlass anzeigen
+            </a>
           </li>
         </ul>
       </section>
@@ -131,13 +142,23 @@ export default function CryptoRadar2() {
             {technicalAnalysis[coin] ? (
               <>
                 <p>
-                  <strong>7d Range:</strong> ${technicalAnalysis[coin].range.min} – ${technicalAnalysis[coin].range.max}
+                  <strong>7d Range:</strong> ${roundTo(technicalAnalysis[coin].range.min, 2)} – ${roundTo(technicalAnalysis[coin].range.max, 2)}
                 </p>
                 <p>
-                  <strong>Unterstützung:</strong> ${technicalAnalysis[coin].support}
+                  <strong>Unterstützung:</strong> ${roundTo(technicalAnalysis[coin].support, 2)}
                 </p>
                 <p>
-                  <strong>Widerstand:</strong> ${technicalAnalysis[coin].resistance}
+                  <strong>Widerstand:</strong> ${roundTo(technicalAnalysis[coin].resistance, 2)}
+                </p>
+                <p>
+                  <strong>Textbeschreibung:</strong>{" "}
+                  {coin === "bitcoin"
+                    ? "BTC zeigt in dieser Woche eine mögliche Unterstützung bei $62.000. Sollte der Kurs über $65.000 steigen, könnte ein bullischer Ausbruch folgen."
+                    : coin === "ethereum"
+                    ? "ETH zeigt mögliche Unterstützung bei $2.000. Ein Ausbruch über $2.300 könnte den Preis nach oben treiben."
+                    : coin === "solana"
+                    ? "SOL könnte Unterstützung bei $50 haben. Bei einem Breakout über $55 wäre ein bullischer Trend möglich."
+                    : "DOT zeigt Unterstützung bei $35. Ein Ausbruch nach oben könnte einen Preis von $40 erzielen."}
                 </p>
               </>
             ) : (
@@ -156,10 +177,10 @@ export default function CryptoRadar2() {
             {pivotPoints[coin] && fibonacciLevels[coin] ? (
               <>
                 <p>
-                  <strong>Pivot Points:</strong> R1: ${pivotPoints[coin].r1}, R2: ${pivotPoints[coin].r2}, R3: ${pivotPoints[coin].r3}
+                  <strong>Pivot Points:</strong> R1: ${roundTo(pivotPoints[coin].r1, 2)}, R2: ${roundTo(pivotPoints[coin].r2, 2)}, R3: ${roundTo(pivotPoints[coin].r3, 2)}
                 </p>
                 <p>
-                  <strong>Fibonacci Levels:</strong> 0.236: ${fibonacciLevels[coin][0.236]}, 0.382: ${fibonacciLevels[coin][0.382]}, 0.5: ${fibonacciLevels[coin][0.5]}, 0.618: ${fibonacciLevels[coin][0.618]}
+                  <strong>Fibonacci Levels:</strong> 0.236: ${roundTo(fibonacciLevels[coin][0.236], 2)}, 0.382: ${roundTo(fibonacciLevels[coin][0.382], 2)}, 0.5: ${roundTo(fibonacciLevels[coin][0.5], 2)}, 0.618: ${roundTo(fibonacciLevels[coin][0.618], 2)}
                 </p>
               </>
             ) : (
