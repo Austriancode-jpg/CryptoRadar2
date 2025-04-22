@@ -6,7 +6,8 @@ export default function CryptoRadar2() {
   const [fearGreed, setFearGreed] = useState(null);
   const [sevenDayData, setSevenDayData] = useState({});
   const [fibonacciData, setFibonacciData] = useState({});
-  const [pivotPoints, setPivotPoints] = useState({}); // ✅ Korrekt platziert
+  const [pivotPoints, setPivotPoints] = useState({});
+  const [volumeZones, setVolumeZones] = useState({}); // ✅ NEU
 
   const coins = [
     { id: "bitcoin", symbol: "BTC" },
@@ -33,7 +34,7 @@ export default function CryptoRadar2() {
         const newFibonacci = {};
         const newPivotPoints = {};
 
-        coinRes.data.forEach((coin) => {
+        for (const coin of coinRes.data) {
           const { id, current_price, high_24h, low_24h } = coin;
 
           const support = (low_24h * 0.99).toFixed(2);
@@ -68,7 +69,7 @@ export default function CryptoRadar2() {
           const S2 = (parseFloat(P) - (high_24h - low_24h)).toFixed(2);
 
           newPivotPoints[id] = { P, R1, S1, R2, S2 };
-        });
+        }
 
         setPrices(newPrices);
         setSevenDayData(newSevenDay);
@@ -77,6 +78,40 @@ export default function CryptoRadar2() {
 
         const fngRes = await axios.get("https://api.alternative.me/fng/?limit=1");
         setFearGreed(fngRes.data.data[0]);
+
+        // ✅ Volumen-Daten laden
+        const volumeData = {};
+        for (const coin of coins) {
+          const chartRes = await axios.get(
+            `https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart`,
+            { params: { vs_currency: "usd", days: 7 } }
+          );
+
+          const prices = chartRes.data.prices;
+          const volumes = chartRes.data.total_volumes;
+
+          // Zonen clustern – grob gerundet auf 100er Schritte
+          const buckets = {};
+          for (let i = 0; i < prices.length; i++) {
+            const price = prices[i][1];
+            const volume = volumes[i][1];
+            const rounded = Math.round(price / 100) * 100;
+            buckets[rounded] = (buckets[rounded] || 0) + volume;
+          }
+
+          // Top 3 Volumen-Zonen
+          const sorted = Object.entries(buckets)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([price, vol]) => ({
+              price: parseFloat(price),
+              volume: Math.round(vol / 1000000), // in Mio USD
+            }));
+
+          volumeData[coin.id] = sorted;
+        }
+
+        setVolumeZones(volumeData);
       } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
       }
@@ -158,6 +193,28 @@ export default function CryptoRadar2() {
             </div>
           ) : (
             <p key={coin.id}>Lade technische Levels für {coin.symbol}...</p>
+          );
+        })}
+      </section>
+
+      {/* 🧱 Volumenbasierte Zonen */}
+      <section className="bg-gray-850 rounded-2xl p-6 border border-gray-700 shadow-md">
+        <h2 className="text-2xl font-bold mb-4 text-yellow-400">🧱 Volumenbasierte Preiszonen (7 Tage)</h2>
+        {coins.map((coin) => {
+          const zones = volumeZones[coin.id];
+          return zones ? (
+            <div key={coin.id} className="mb-6">
+              <h3 className="text-xl font-semibold text-white mb-2">{coin.symbol}</h3>
+              <ul className="pl-4 list-disc text-gray-300">
+                {zones.map((z, i) => (
+                  <li key={i}>
+                    ${z.price} – ca. {z.volume} Mio USD gehandelt
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p key={coin.id}>Lade Volumen-Zonen für {coin.symbol}...</p>
           );
         })}
       </section>
