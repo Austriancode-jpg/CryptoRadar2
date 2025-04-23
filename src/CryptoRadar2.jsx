@@ -48,7 +48,7 @@ export default function CryptoRadar2() {
             rangeHigh,
             support,
             resistance,
-            comment: ${coin.symbol.toUpperCase()} zeigt in dieser Woche eine mögliche Unterstützung bei $${support}. Sollte der Kurs über $${(high_24h * 0.985).toFixed(2)} steigen, könnte ein bullischer Ausbruch folgen.,
+            comment: `${coin.symbol.toUpperCase()} zeigt in dieser Woche eine mögliche Unterstützung bei $${support}. Sollte der Kurs über $${(high_24h * 0.985).toFixed(2)} steigen, könnte ein bullischer Ausbruch folgen.`,
           };
 
           const diff = high_24h - low_24h;
@@ -98,7 +98,7 @@ export default function CryptoRadar2() {
           </li>
           <li>
             <strong>Fear & Greed Index:</strong>{" "}
-            {fearGreed ? ${fearGreed.value} – ${fearGreed.value_classification} : "Lade..."}
+            {fearGreed ? `${fearGreed.value} – ${fearGreed.value_classification}` : "Lade..."}
           </li>
           <li>
             <strong>Funding & Heatmap:</strong>{" "}
@@ -121,7 +121,7 @@ export default function CryptoRadar2() {
                 <li>7d Range: ${data.rangeLow} – ${data.rangeHigh}</li>
                 <li>Unterstützung: ${data.support}</li>
                 <li>Widerstand: ${data.resistance}</li>
-                <li className="text-sm italic text-green-400 mt-1">{data.comment}</li>
+                <li className="text-sm italic text-gray-400 mt-1">{data.comment}</li>
               </ul>
             </div>
           ) : (
