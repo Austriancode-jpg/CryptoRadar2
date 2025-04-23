@@ -121,7 +121,7 @@ export default function CryptoRadar2() {
                 <li>7d Range: ${data.rangeLow} – ${data.rangeHigh}</li>
                 <li>Unterstützung: ${data.support}</li>
                 <li>Widerstand: ${data.resistance}</li>
-                <li className="text-sm italic text-gray-400 mt-1">{data.comment}</li>
+                <li className="text-sm italic text-green-400 mt-1">{data.comment}</li>
               </ul>
             </div>
           ) : (
