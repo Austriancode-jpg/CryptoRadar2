@@ -173,23 +173,26 @@ export default function CryptoRadar2() {
       return <p key={coin.id}>Lade Sentiment für {coin.symbol}...</p>;
     }
 
-    // Bewertung (grob nach Pivot-Level)
     const price = parseFloat(current);
     const P = parseFloat(pivot.P);
     const R1 = parseFloat(pivot.R1);
     const S1 = parseFloat(pivot.S1);
 
+    console.log(`${coin.symbol} ➤ Preis: ${price}, R1: ${R1}, S1: ${S1}, P: ${P}`);
+
     let sentiment = "Neutral";
     let score = 50;
     let outlook = "";
 
-    if (price > R1) {
+    const tolerance = (R1 - S1) * 0.03; // 3% vom Range als Spielraum
+
+    if (price > R1 + tolerance) {
       sentiment = "Bullisch";
-      score = Math.min(65 + (price - R1) / R1 * 100, 100).toFixed(0);
+      score = Math.min(65 + ((price - R1) / R1) * 100, 100).toFixed(0);
       outlook = `${coin.symbol} zeigt Stärke über R1 – positive Dynamik möglich.`;
-    } else if (price < S1) {
+    } else if (price < S1 - tolerance) {
       sentiment = "Bärisch";
-      score = Math.max(35 - (S1 - price) / S1 * 100, 0).toFixed(0);
+      score = Math.max(35 - ((S1 - price) / S1) * 100, 0).toFixed(0);
       outlook = `${coin.symbol} handelt unter S1 – Vorsicht vor weiterem Rückgang.`;
     } else {
       sentiment = "Neutral";
