@@ -33,6 +33,9 @@ export default function CryptoRadar2() {
         const newFibonacci = {};
         const newPivotPoints = {};
 
+        console.log("📦 Preise:", newPrices);
+console.log("📐 Pivot Points:", newPivotPoints);
+
         coinRes.data.forEach((coin) => {
           const { id, current_price, high_24h, low_24h } = coin;
 
