@@ -161,6 +161,56 @@ export default function CryptoRadar2() {
           );
         })}
       </section>
+
+      {/* 🧠 Marktsentiment & Ausblick */}
+<section className="bg-gray-850 rounded-2xl p-6 border border-gray-700 shadow-md">
+  <h2 className="text-2xl font-bold mb-4 text-yellow-400">🧠 Marktsentiment & Ausblick</h2>
+  {coins.map((coin) => {
+    const price = prices[coin.id];
+    const pivot = pivotPoints[coin.id];
+    const sevenDay = sevenDayData[coin.id];
+
+    if (!price || !pivot || !sevenDay) {
+      return <p key={coin.id}>Lade Sentiment-Daten für {coin.symbol}...</p>;
+    }
+
+    let sentiment = "Neutral";
+    let sentimentValue = 50;
+    const resistance = parseFloat(sevenDay.resistance);
+    const support = parseFloat(sevenDay.support);
+    const pivotValue = parseFloat(pivot.P);
+
+    if (price > pivotValue && price > resistance * 0.985) {
+      sentiment = "Bullisch";
+      sentimentValue = 63;
+    } else if (price < pivotValue && price < support * 1.015) {
+      sentiment = "Bärisch";
+      sentimentValue = 41;
+    }
+
+    let outlook = `${coin.symbol} zeigt aktuell Anzeichen von ${sentiment}. `;
+    if (sentiment === "Bullisch") {
+      outlook += `Sollte der Kurs über $${resistance} steigen, könnte ein weiterer Aufwärtstrend folgen.`;
+    } else if (sentiment === "Bärisch") {
+      outlook += `Ein Bruch unter $${support} könnte weiteren Verkaufsdruck auslösen.`;
+    } else {
+      outlook += `Ein Ausbruch über $${resistance} oder unter $${support} könnte neue Impulse liefern.`;
+    }
+
+    return (
+      <div key={coin.id} className="mb-6">
+        <h3 className="text-xl font-semibold text-white mb-1">{coin.symbol}</h3>
+        <p className="text-gray-300">
+          {sentiment === "Bullisch" && "🔼"}
+          {sentiment === "Bärisch" && "🔽"}
+          {sentiment === "Neutral" && "🔁"}{" "}
+          {sentiment} ({sentimentValue}%)
+        </p>
+        <p className="text-sm italic text-yellow-300 mt-1">{outlook}</p>
+      </div>
+    );
+  })}
+</section>
     </div>
   );
 }
