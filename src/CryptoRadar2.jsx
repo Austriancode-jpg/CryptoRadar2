@@ -184,30 +184,22 @@ export default function CryptoRadar2() {
     let score = 50;
     let outlook = "";
 
-    // Toleranzbereich von ±3% des Pivot-Werts
-    const tolerance = P * 0.03;  // 3% Toleranz von Pivot-Punkt
+    // Berechnung der Preisabweichung in Prozent
+    const priceDeviationFromPivot = ((price - P) / P) * 100; // Abweichung in Prozent
 
-    console.log(`Toleranz: ±${tolerance.toFixed(2)} für ${coin.symbol} (Pivot: ${P})`);
+    console.log(`Preisabweichung vom Pivot für ${coin.symbol}: ${priceDeviationFromPivot.toFixed(2)}%`);
 
-    // Berechnungen für Bullisch/Bärisch
-    const distanceFromR1 = price - R1;
-    const distanceFromS1 = S1 - price;
-    const distanceFromP = Math.abs(price - P);
-
-    console.log(`${coin.symbol} Abstand zu R1: ${distanceFromR1.toFixed(2)} | Abstand zu S1: ${distanceFromS1.toFixed(2)} | Abstand zu Pivot: ${distanceFromP.toFixed(2)}`);
-
-    // Bedingungen für Bullisch/Bärisch
-    if (distanceFromR1 > tolerance) {
+    // Dynamische Sentiment-Bedingungen
+    if (priceDeviationFromPivot > 3) { // Wenn der Preis mehr als 3% über dem Pivot liegt
       sentiment = "Bullisch";
-      score = Math.min(65 + (distanceFromR1 / R1) * 100, 100).toFixed(0);  // Dynamisch je nach Abstand zu R1
-      outlook = `${coin.symbol} zeigt Stärke über R1 – positive Dynamik möglich.`;
-    } else if (distanceFromS1 > tolerance) {
+      score = Math.min(50 + (priceDeviationFromPivot / 2), 100).toFixed(0);  // Dynamisch je nach Abweichung
+      outlook = `${coin.symbol} zeigt Stärke, möglicherweise ein bullischer Trend.`;
+    } else if (priceDeviationFromPivot < -3) { // Wenn der Preis mehr als 3% unter dem Pivot liegt
       sentiment = "Bärisch";
-      score = Math.max(35 - (distanceFromS1 / S1) * 100, 0).toFixed(0);  // Dynamisch je nach Abstand zu S1
-      outlook = `${coin.symbol} handelt unter S1 – Vorsicht vor weiterem Rückgang.`;
+      score = Math.max(50 - (Math.abs(priceDeviationFromPivot) / 2), 0).toFixed(0); // Dynamisch je nach Abweichung
+      outlook = `${coin.symbol} handelt unter dem Pivot, Bärischer Trend möglich.`;
     } else {
       sentiment = "Neutral";
-      score = "50";
       outlook = `${coin.symbol} bewegt sich nahe dem Pivot-Level – unklarer Trend.`;
     }
 
