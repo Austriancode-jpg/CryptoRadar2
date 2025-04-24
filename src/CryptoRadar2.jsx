@@ -169,27 +169,28 @@ export default function CryptoRadar2() {
     const price = prices[coin.id];
     const pivot = pivotPoints[coin.id]?.P;
 
-    // Check: Sind Daten vorhanden?
-    if (!price || !pivot || isNaN(price) || isNaN(pivot)) {
+    // Sicherstellen, dass die Werte vorhanden und gültig sind
+    const priceNum = parseFloat(price);
+    const pivotNum = parseFloat(pivot);
+
+    if (isNaN(priceNum) || isNaN(pivotNum)) {
       return <p key={coin.id}>Lade Sentiment-Daten für {coin.symbol}...</p>;
     }
 
-    // Berechne Abweichung in %
-    const sentimentDelta = ((price - pivot) / pivot) * 100;
+    const delta = ((priceNum - pivotNum) / pivotNum) * 100;
 
-    let sentimentValue = 50;
-    let sentimentLabel = "Neutral";
+    let sentiment = "Neutral";
+    let percent = 50;
 
-    if (sentimentDelta > 1) {
-      sentimentLabel = "Bullisch";
-      sentimentValue = Math.min(75, 50 + sentimentDelta * 2);
-    } else if (sentimentDelta < -1) {
-      sentimentLabel = "Bärisch";
-      sentimentValue = Math.max(25, 50 + sentimentDelta * 2); // Delta ist negativ
+    if (delta > 1) {
+      sentiment = "Bullisch";
+      percent = Math.min(80, 50 + delta * 2);
+    } else if (delta < -1) {
+      sentiment = "Bärisch";
+      percent = Math.max(20, 50 + delta * 2);
     }
 
-    const roundedSentiment = Math.round(sentimentValue);
-
+    const symbol = coin.symbol.toLowerCase(); // z. B. "btc"
     const outlook = {
       btc: "BTC könnte in dieser Woche die $65.000-Marke erneut testen. Ein Schlusskurs darüber wäre ein starkes Signal für weiteres Momentum.",
       eth: "ETH zeigt kurzfristige Stabilität. Ein Ausbruch über $3.400 könnte neue Käufe auslösen.",
@@ -201,10 +202,10 @@ export default function CryptoRadar2() {
       <div key={coin.id} className="mb-6">
         <h3 className="text-xl font-semibold text-white mb-2">{coin.symbol}</h3>
         <p className="text-gray-300 mb-1">
-          Sentiment: {sentimentLabel === "Bullisch" ? "🔼" : sentimentLabel === "Bärisch" ? "🔽" : "🔁"}{" "}
-          {sentimentLabel} ({roundedSentiment}%)
+          Sentiment: {sentiment === "Bullisch" ? "🔼" : sentiment === "Bärisch" ? "🔽" : "🔁"}{" "}
+          {sentiment} ({Math.round(percent)}%)
         </p>
-        <p className="text-sm italic text-yellow-300">{outlook[coin.id]}</p>
+        <p className="text-sm italic text-yellow-300">{outlook[symbol] ?? "Keine Prognose verfügbar."}</p>
       </div>
     );
   })}
