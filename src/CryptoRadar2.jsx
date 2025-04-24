@@ -33,9 +33,6 @@ export default function CryptoRadar2() {
         const newFibonacci = {};
         const newPivotPoints = {};
 
-        console.log("📦 Preise:", newPrices);
-console.log("📐 Pivot Points:", newPivotPoints);
-
         coinRes.data.forEach((coin) => {
           const { id, current_price, high_24h, low_24h } = coin;
 
@@ -169,46 +166,46 @@ console.log("📐 Pivot Points:", newPivotPoints);
 <section className="bg-gray-850 rounded-2xl p-6 border border-gray-700 shadow-md">
   <h2 className="text-2xl font-bold mb-4 text-yellow-400">📊 Marktsentiment & Ausblick</h2>
   {coins.map((coin) => {
-    const price = prices[coin.id];
-    const pivot = pivotPoints[coin.id]?.P;
+    const current = prices[coin.id];
+    const pivot = pivotPoints[coin.id];
 
-    // Sicherstellen, dass die Werte vorhanden und gültig sind
-    const priceNum = parseFloat(price);
-    const pivotNum = parseFloat(pivot);
-
-    if (isNaN(priceNum) || isNaN(pivotNum)) {
-      return <p key={coin.id}>Lade Sentiment-Daten für {coin.symbol}...</p>;
+    if (!current || !pivot) {
+      return <p key={coin.id}>Lade Sentiment für {coin.symbol}...</p>;
     }
 
-    const delta = ((priceNum - pivotNum) / pivotNum) * 100;
+    // Bewertung (grob nach Pivot-Level)
+    const price = parseFloat(current);
+    const P = parseFloat(pivot.P);
+    const R1 = parseFloat(pivot.R1);
+    const S1 = parseFloat(pivot.S1);
 
     let sentiment = "Neutral";
-    let percent = 50;
+    let score = 50;
+    let outlook = "";
 
-    if (delta > 1) {
+    if (price > R1) {
       sentiment = "Bullisch";
-      percent = Math.min(80, 50 + delta * 2);
-    } else if (delta < -1) {
+      score = Math.min(65 + (price - R1) / R1 * 100, 100).toFixed(0);
+      outlook = `${coin.symbol} zeigt Stärke über R1 – positive Dynamik möglich.`;
+    } else if (price < S1) {
       sentiment = "Bärisch";
-      percent = Math.max(20, 50 + delta * 2);
+      score = Math.max(35 - (S1 - price) / S1 * 100, 0).toFixed(0);
+      outlook = `${coin.symbol} handelt unter S1 – Vorsicht vor weiterem Rückgang.`;
+    } else {
+      sentiment = "Neutral";
+      score = "50";
+      outlook = `${coin.symbol} bewegt sich nahe dem Pivot-Level – unklarer Trend.`;
     }
 
-    const symbol = coin.symbol.toLowerCase(); // z. B. "btc"
-    const outlook = {
-      btc: "BTC könnte in dieser Woche die $65.000-Marke erneut testen. Ein Schlusskurs darüber wäre ein starkes Signal für weiteres Momentum.",
-      eth: "ETH zeigt kurzfristige Stabilität. Ein Ausbruch über $3.400 könnte neue Käufe auslösen.",
-      sol: "SOL kämpft mit Widerstand bei $145. Ein Rückfall unter $130 würde Schwäche signalisieren.",
-      dot: "DOT testet die $6.50-Zone. Ein Durchbruch über $7 wäre positiv zu werten.",
-    };
-
     return (
-      <div key={coin.id} className="mb-6">
-        <h3 className="text-xl font-semibold text-white mb-2">{coin.symbol}</h3>
-        <p className="text-gray-300 mb-1">
-          Sentiment: {sentiment === "Bullisch" ? "🔼" : sentiment === "Bärisch" ? "🔽" : "🔁"}{" "}
-          {sentiment} ({Math.round(percent)}%)
+      <div key={coin.id} className="mb-4">
+        <h3 className="text-xl font-semibold text-white">{coin.symbol}</h3>
+        <p className="text-gray-300">
+          {sentiment === "Bullisch" && "🔼"}
+          {sentiment === "Neutral" && "🔁"}
+          {sentiment === "Bärisch" && "🔽"} {sentiment} ({score}%)
         </p>
-        <p className="text-sm italic text-yellow-300">{outlook[symbol] ?? "Keine Prognose verfügbar."}</p>
+        <p className="text-sm text-gray-400 italic">{outlook}</p>
       </div>
     );
   })}
