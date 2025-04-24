@@ -184,17 +184,26 @@ export default function CryptoRadar2() {
     let score = 50;
     let outlook = "";
 
-    // Toleranzbereich von ±2-3% des Pivot-Werts
+    // Toleranzbereich von ±3% des Pivot-Werts
     const tolerance = P * 0.03;  // 3% Toleranz von Pivot-Punkt
 
+    console.log(`Toleranz: ±${tolerance.toFixed(2)} für ${coin.symbol} (Pivot: ${P})`);
+
+    // Berechnungen für Bullisch/Bärisch
+    const distanceFromR1 = price - R1;
+    const distanceFromS1 = S1 - price;
+    const distanceFromP = Math.abs(price - P);
+
+    console.log(`${coin.symbol} Abstand zu R1: ${distanceFromR1.toFixed(2)} | Abstand zu S1: ${distanceFromS1.toFixed(2)} | Abstand zu Pivot: ${distanceFromP.toFixed(2)}`);
+
     // Bedingungen für Bullisch/Bärisch
-    if (price > R1 + tolerance) {
+    if (distanceFromR1 > tolerance) {
       sentiment = "Bullisch";
-      score = Math.min(65 + ((price - R1) / R1) * 100, 100).toFixed(0);  // Dynamisch je nach Abstand zu R1
+      score = Math.min(65 + (distanceFromR1 / R1) * 100, 100).toFixed(0);  // Dynamisch je nach Abstand zu R1
       outlook = `${coin.symbol} zeigt Stärke über R1 – positive Dynamik möglich.`;
-    } else if (price < S1 - tolerance) {
+    } else if (distanceFromS1 > tolerance) {
       sentiment = "Bärisch";
-      score = Math.max(35 - ((S1 - price) / S1) * 100, 0).toFixed(0);  // Dynamisch je nach Abstand zu S1
+      score = Math.max(35 - (distanceFromS1 / S1) * 100, 0).toFixed(0);  // Dynamisch je nach Abstand zu S1
       outlook = `${coin.symbol} handelt unter S1 – Vorsicht vor weiterem Rückgang.`;
     } else {
       sentiment = "Neutral";
