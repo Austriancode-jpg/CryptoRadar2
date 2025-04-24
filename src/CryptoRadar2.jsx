@@ -188,7 +188,7 @@ export default function CryptoRadar2() {
       sentimentValue = 41;
     }
 
-    let outlook = `${coin.symbol} zeigt aktuell Anzeichen von ${sentiment}. `;
+    let outlook = `${coin.symbol} sieht aktuell ${sentiment} aus. `;
     if (sentiment === "Bullisch") {
       outlook += `Sollte der Kurs über $${resistance} steigen, könnte ein weiterer Aufwärtstrend folgen.`;
     } else if (sentiment === "Bärisch") {
