@@ -184,15 +184,17 @@ export default function CryptoRadar2() {
     let score = 50;
     let outlook = "";
 
-    const tolerance = (R1 - S1) * 0.03; // 3% vom Range als Spielraum
+    // Toleranzbereich von ±2-3% des Pivot-Werts
+    const tolerance = P * 0.03;  // 3% Toleranz von Pivot-Punkt
 
+    // Bedingungen für Bullisch/Bärisch
     if (price > R1 + tolerance) {
       sentiment = "Bullisch";
-      score = Math.min(65 + ((price - R1) / R1) * 100, 100).toFixed(0);
+      score = Math.min(65 + ((price - R1) / R1) * 100, 100).toFixed(0);  // Dynamisch je nach Abstand zu R1
       outlook = `${coin.symbol} zeigt Stärke über R1 – positive Dynamik möglich.`;
     } else if (price < S1 - tolerance) {
       sentiment = "Bärisch";
-      score = Math.max(35 - ((S1 - price) / S1) * 100, 0).toFixed(0);
+      score = Math.max(35 - ((S1 - price) / S1) * 100, 0).toFixed(0);  // Dynamisch je nach Abstand zu S1
       outlook = `${coin.symbol} handelt unter S1 – Vorsicht vor weiterem Rückgang.`;
     } else {
       sentiment = "Neutral";
