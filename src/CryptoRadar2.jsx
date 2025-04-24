@@ -162,51 +162,46 @@ export default function CryptoRadar2() {
         })}
       </section>
 
-      {/* 🧠 Marktsentiment & Ausblick */}
+{/* 📊 Marktsentiment & Ausblick */}
 <section className="bg-gray-850 rounded-2xl p-6 border border-gray-700 shadow-md">
-  <h2 className="text-2xl font-bold mb-4 text-yellow-400">🧠 Marktsentiment & Ausblick</h2>
+  <h2 className="text-2xl font-bold mb-4 text-yellow-400">📊 Marktsentiment & Ausblick</h2>
   {coins.map((coin) => {
     const price = prices[coin.id];
-    const pivot = pivotPoints[coin.id];
-    const sevenDay = sevenDayData[coin.id];
+    const pivot = pivotPoints[coin.id]?.P;
 
-    if (!price || !pivot || !sevenDay) {
+    if (!price || !pivot) {
       return <p key={coin.id}>Lade Sentiment-Daten für {coin.symbol}...</p>;
     }
 
-    let sentiment = "Neutral";
+    const sentimentDelta = ((price - pivot) / pivot) * 100;
     let sentimentValue = 50;
-    const resistance = parseFloat(sevenDay.resistance);
-    const support = parseFloat(sevenDay.support);
-    const pivotValue = parseFloat(pivot.P);
+    let sentimentLabel = "Neutral";
 
-    if (price > pivotValue && price > resistance * 0.985) {
-      sentiment = "Bullisch";
-      sentimentValue = 63;
-    } else if (price < pivotValue && price < support * 1.015) {
-      sentiment = "Bärisch";
-      sentimentValue = 41;
+    if (sentimentDelta > 1) {
+      sentimentLabel = "Bullisch";
+      sentimentValue = Math.min(70, 50 + Math.abs(sentimentDelta * 5));
+    } else if (sentimentDelta < -1) {
+      sentimentLabel = "Bärisch";
+      sentimentValue = Math.max(30, 50 - Math.abs(sentimentDelta * 5));
     }
 
-    let outlook = `${coin.symbol} sieht aktuell ${sentiment} aus. `;
-    if (sentiment === "Bullisch") {
-      outlook += `Sollte der Kurs über $${resistance} steigen, könnte ein weiterer Aufwärtstrend folgen.`;
-    } else if (sentiment === "Bärisch") {
-      outlook += `Ein Bruch unter $${support} könnte weiteren Verkaufsdruck auslösen.`;
-    } else {
-      outlook += `Ein Ausbruch über $${resistance} oder unter $${support} könnte neue Impulse liefern.`;
-    }
+    const roundedSentiment = sentimentValue.toFixed(0);
+
+    const outlook = {
+      BTC: "BTC könnte in dieser Woche die $65.000-Marke erneut testen. Ein Schlusskurs darüber wäre ein starkes Signal für weiteres Momentum.",
+      ETH: "ETH zeigt kurzfristige Stabilität. Ein Ausbruch über $3.400 könnte neue Käufe auslösen.",
+      SOL: "SOL kämpft mit Widerstand bei $145. Ein Rückfall unter $130 würde Schwäche signalisieren.",
+      DOT: "DOT testet die $6.50-Zone. Ein Durchbruch über $7 wäre positiv zu werten.",
+    };
 
     return (
       <div key={coin.id} className="mb-6">
-        <h3 className="text-xl font-semibold text-white mb-1">{coin.symbol}</h3>
-        <p className="text-gray-300">
-          {sentiment === "Bullisch" && "🔼"}
-          {sentiment === "Bärisch" && "🔽"}
-          {sentiment === "Neutral" && "🔁"}{" "}
-          {sentiment} ({sentimentValue}%)
+        <h3 className="text-xl font-semibold text-white mb-2">{coin.symbol}</h3>
+        <p className="text-gray-300 mb-1">
+          Sentiment: {sentimentLabel === "Bullisch" ? "🔼" : sentimentLabel === "Bärisch" ? "🔽" : "🔁"}{" "}
+          {sentimentLabel} ({roundedSentiment}%)
         </p>
-        <p className="text-sm italic text-yellow-300 mt-1">{outlook}</p>
+        <p className="text-sm italic text-yellow-300">{outlook[coin.symbol]}</p>
       </div>
     );
   })}
