@@ -169,29 +169,32 @@ export default function CryptoRadar2() {
     const price = prices[coin.id];
     const pivot = pivotPoints[coin.id]?.P;
 
-    if (!price || !pivot) {
+    // Check: Sind Daten vorhanden?
+    if (!price || !pivot || isNaN(price) || isNaN(pivot)) {
       return <p key={coin.id}>Lade Sentiment-Daten für {coin.symbol}...</p>;
     }
 
+    // Berechne Abweichung in %
     const sentimentDelta = ((price - pivot) / pivot) * 100;
+
     let sentimentValue = 50;
     let sentimentLabel = "Neutral";
 
     if (sentimentDelta > 1) {
       sentimentLabel = "Bullisch";
-      sentimentValue = Math.min(70, 50 + Math.abs(sentimentDelta * 5));
+      sentimentValue = Math.min(75, 50 + sentimentDelta * 2);
     } else if (sentimentDelta < -1) {
       sentimentLabel = "Bärisch";
-      sentimentValue = Math.max(30, 50 - Math.abs(sentimentDelta * 5));
+      sentimentValue = Math.max(25, 50 + sentimentDelta * 2); // Delta ist negativ
     }
 
-    const roundedSentiment = sentimentValue.toFixed(0);
+    const roundedSentiment = Math.round(sentimentValue);
 
     const outlook = {
-      BTC: "BTC könnte in dieser Woche die $65.000-Marke erneut testen. Ein Schlusskurs darüber wäre ein starkes Signal für weiteres Momentum.",
-      ETH: "ETH zeigt kurzfristige Stabilität. Ein Ausbruch über $3.400 könnte neue Käufe auslösen.",
-      SOL: "SOL kämpft mit Widerstand bei $145. Ein Rückfall unter $130 würde Schwäche signalisieren.",
-      DOT: "DOT testet die $6.50-Zone. Ein Durchbruch über $7 wäre positiv zu werten.",
+      btc: "BTC könnte in dieser Woche die $65.000-Marke erneut testen. Ein Schlusskurs darüber wäre ein starkes Signal für weiteres Momentum.",
+      eth: "ETH zeigt kurzfristige Stabilität. Ein Ausbruch über $3.400 könnte neue Käufe auslösen.",
+      sol: "SOL kämpft mit Widerstand bei $145. Ein Rückfall unter $130 würde Schwäche signalisieren.",
+      dot: "DOT testet die $6.50-Zone. Ein Durchbruch über $7 wäre positiv zu werten.",
     };
 
     return (
@@ -201,7 +204,7 @@ export default function CryptoRadar2() {
           Sentiment: {sentimentLabel === "Bullisch" ? "🔼" : sentimentLabel === "Bärisch" ? "🔽" : "🔁"}{" "}
           {sentimentLabel} ({roundedSentiment}%)
         </p>
-        <p className="text-sm italic text-yellow-300">{outlook[coin.symbol]}</p>
+        <p className="text-sm italic text-yellow-300">{outlook[coin.id]}</p>
       </div>
     );
   })}
