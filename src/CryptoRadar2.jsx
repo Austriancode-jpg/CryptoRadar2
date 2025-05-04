@@ -172,9 +172,16 @@ export default function CryptoRadar2() {
             return trend ? (
               <div key={coin.id}>
                 <h3 className="text-lg font-semibold text-white">{coin.symbol}</h3>
-                <p className="text-gray-300 text-xl leading-snug">
-                  {trend.type} ({trend.percent}%){" "}
-                  <span className="text-green-400 text-2xl font-mono">{trend.sparkline}</span>
+                <p
+                  className={`text-xl leading-snug font-mono ${
+                    trend.type.includes("Aufwärtstrend")
+                    ? "text-green-400"
+                    : trend.type.includes("Abwärtstrend")
+                    ? "text-red-400"
+                    : "text-gray-400"
+                  }`}
+                  >
+                  {trend.type} ({trend.percent}%) {trend.sparkline}
                 </p>
               </div>
             ) : (
