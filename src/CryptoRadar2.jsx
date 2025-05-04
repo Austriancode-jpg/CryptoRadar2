@@ -6,7 +6,8 @@ export default function CryptoRadar2() {
   const [fearGreed, setFearGreed] = useState(null);
   const [sevenDayData, setSevenDayData] = useState({});
   const [fibonacciData, setFibonacciData] = useState({});
-  const [pivotPoints, setPivotPoints] = useState({}); // ✅ Korrekt platziert
+  const [pivotPoints, setPivotPoints] = useState({});
+  const [trendData, setTrendData] = useState({});
 
   const coins = [
     { id: "bitcoin", symbol: "BTC" },
@@ -14,6 +15,24 @@ export default function CryptoRadar2() {
     { id: "solana", symbol: "SOL" },
     { id: "polkadot", symbol: "DOT" },
   ];
+
+  // Hilfsfunktion für Trendklassifikation
+  function classifyTrend(prices) {
+    const first = prices[0];
+    const last = prices[prices.length - 1];
+    const change = ((last - first) / first) * 100;
+
+    const normalized = prices.map((p) =>
+      Math.round(
+        ((p - Math.min(...prices)) / (Math.max(...prices) - Math.min(...prices))) * 6
+      )
+    );
+    const sparkline = normalized.map((n) => "▁▂▃▄▅▆▇"[n]).join("");
+
+    if (change > 1) return { type: "📈 Aufwärtstrend", percent: change.toFixed(1), sparkline };
+    if (change < -1) return { type: "📉 Abwärtstrend", percent: change.toFixed(1), sparkline };
+    return { type: "🔁 Seitwärtstrend", percent: change.toFixed(1), sparkline };
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -77,6 +96,20 @@ export default function CryptoRadar2() {
 
         const fngRes = await axios.get("https://api.alternative.me/fng/?limit=1");
         setFearGreed(fngRes.data.data[0]);
+
+        // ✅ Trenddaten separat laden
+        const trendResult = {};
+        for (const coin of coins) {
+          const chartRes = await axios.get(
+            `https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart`,
+            {
+              params: { vs_currency: "usd", days: 7, interval: "daily" },
+            }
+          );
+          const pricesOnly = chartRes.data.prices.map((p) => p[1]);
+          trendResult[coin.id] = classifyTrend(pricesOnly);
+        }
+        setTrendData(trendResult);
       } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
       }
@@ -130,6 +163,27 @@ export default function CryptoRadar2() {
         })}
       </section>
 
+      {/* 📊 Trendanalyse */}
+      <section className="bg-gray-850 rounded-2xl p-6 border border-gray-700 shadow-md">
+        <h2 className="text-2xl font-bold mb-4 text-yellow-400">📊 Trendanalyse der letzten 7 Tage</h2>
+        <div className="space-y-4">
+          {coins.map((coin) => {
+            const trend = trendData[coin.id];
+            return trend ? (
+              <div key={coin.id}>
+                <h3 className="text-lg font-semibold text-white">{coin.symbol}</h3>
+                <p className="text-gray-300 text-xl leading-snug">
+                  {trend.type} ({trend.percent}%){" "}
+                  <span className="text-green-400 text-2xl font-mono">{trend.sparkline}</span>
+                </p>
+              </div>
+            ) : (
+              <p key={coin.id}>Lade Trenddaten für {coin.symbol}...</p>
+            );
+          })}
+        </div>
+      </section>
+
       {/* 🔢 Fibonacci + Pivot-Section */}
       <section className="bg-gray-850 rounded-2xl p-6 border border-gray-700 shadow-md">
         <h2 className="text-2xl font-bold mb-4 text-purple-400">🔢 Fibonacci-Level & Pivot Points</h2>
@@ -161,7 +215,6 @@ export default function CryptoRadar2() {
           );
         })}
       </section>
-      
     </div>
   );
 }
