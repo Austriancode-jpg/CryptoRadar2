@@ -161,61 +161,7 @@ export default function CryptoRadar2() {
           );
         })}
       </section>
-
-{/* 📊 Marktsentiment & Ausblick */}
-<section className="bg-gray-850 rounded-2xl p-6 border border-gray-700 shadow-md">
-  <h2 className="text-2xl font-bold mb-4 text-yellow-400">📊 Marktsentiment & Ausblick</h2>
-  {coins.map((coin) => {
-    const current = prices[coin.id];
-    const pivot = pivotPoints[coin.id];
-
-    if (!current || !pivot) {
-      return <p key={coin.id}>Lade Sentiment für {coin.symbol}...</p>;
-    }
-
-    const price = parseFloat(current);
-    const P = parseFloat(pivot.P);
-    const R1 = parseFloat(pivot.R1);
-    const S1 = parseFloat(pivot.S1);
-
-    console.log(`${coin.symbol} ➤ Preis: ${price}, R1: ${R1}, S1: ${S1}, P: ${P}`);
-
-    let sentiment = "Neutral";
-    let score = 50;
-    let outlook = "";
-
-    // Berechnung der Preisabweichung in Prozent
-    const priceDeviationFromPivot = ((price - P) / P) * 100; // Abweichung in Prozent
-
-    console.log(`Preisabweichung vom Pivot für ${coin.symbol}: ${priceDeviationFromPivot.toFixed(2)}%`);
-
-    // Dynamische Sentiment-Bedingungen
-    if (priceDeviationFromPivot > 3) { // Wenn der Preis mehr als 3% über dem Pivot liegt
-      sentiment = "Bullisch";
-      score = Math.min(50 + (priceDeviationFromPivot / 2), 100).toFixed(0);  // Dynamisch je nach Abweichung
-      outlook = `${coin.symbol} zeigt Stärke, möglicherweise ein bullischer Trend.`;
-    } else if (priceDeviationFromPivot < -3) { // Wenn der Preis mehr als 3% unter dem Pivot liegt
-      sentiment = "Bärisch";
-      score = Math.max(50 - (Math.abs(priceDeviationFromPivot) / 2), 0).toFixed(0); // Dynamisch je nach Abweichung
-      outlook = `${coin.symbol} handelt unter dem Pivot, Bärischer Trend möglich.`;
-    } else {
-      sentiment = "Neutral";
-      outlook = `${coin.symbol} bewegt sich nahe dem Pivot-Level – unklarer Trend.`;
-    }
-
-    return (
-      <div key={coin.id} className="mb-4">
-        <h3 className="text-xl font-semibold text-white">{coin.symbol}</h3>
-        <p className="text-gray-300">
-          {sentiment === "Bullisch" && "🔼"}
-          {sentiment === "Neutral" && "🔁"}
-          {sentiment === "Bärisch" && "🔽"} {sentiment} ({score}%)
-        </p>
-        <p className="text-sm text-gray-400 italic">{outlook}</p>
-      </div>
-    );
-  })}
-</section>
+      
     </div>
   );
 }
